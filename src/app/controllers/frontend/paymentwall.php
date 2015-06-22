@@ -45,7 +45,7 @@ if ($mode == 'pingback') {
 
     $pingback = new Paymentwall_Pingback($_GET, $_SERVER['REMOTE_ADDR']);
 
-    if ($pingback->validate(true)) {
+    if ($pingback->validate()) {
         $result = true;
         if ($type == CREDIT_TYPE_CHARGEBACK) {
             $data = array(
