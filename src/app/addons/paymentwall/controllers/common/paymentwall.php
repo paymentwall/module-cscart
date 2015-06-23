@@ -51,7 +51,7 @@ function handlePingback($configs, $orderId, $type)
 
     $pingback = new Paymentwall_Pingback($params, $_SERVER['REMOTE_ADDR']);
 
-    if ($pingback->validate(true)) {
+    if ($pingback->validate()) {
         if ($type == CREDIT_TYPE_CHARGEBACK) {
             $data = array(
                 'status' => 'I'
