@@ -41,3 +41,21 @@ REPLACE INTO cscart_language_values (lang_code, name, value) VALUES ('GR', 'secr
 REPLACE INTO cscart_language_values (lang_code, name, value) VALUES ('IT', 'secret_code', 'Secret Code');
 REPLACE INTO cscart_language_values (lang_code, name, value) VALUES ('NL', 'secret_code', 'Secret Code');
 REPLACE INTO cscart_language_values (lang_code, name, value) VALUES ('RU', 'secret_code', 'Secret Code');
+
+REPLACE INTO cscart_language_values (lang_code, name, value) VALUES ('EN', 'pw_error_widget', 'Oops, something went wrong. Please try again later');
+REPLACE INTO cscart_language_values (lang_code, name, value) VALUES ('ES', 'pw_error_widget', 'Oops, something went wrong. Please try again later');
+REPLACE INTO cscart_language_values (lang_code, name, value) VALUES ('DE', 'pw_error_widget', 'Oops, something went wrong. Please try again later');
+REPLACE INTO cscart_language_values (lang_code, name, value) VALUES ('FR', 'pw_error_widget', 'Oops, something went wrong. Please try again later');
+REPLACE INTO cscart_language_values (lang_code, name, value) VALUES ('GR', 'pw_error_widget', 'Oops, something went wrong. Please try again later');
+REPLACE INTO cscart_language_values (lang_code, name, value) VALUES ('IT', 'pw_error_widget', 'Oops, something went wrong. Please try again later');
+REPLACE INTO cscart_language_values (lang_code, name, value) VALUES ('NL', 'pw_error_widget', 'Oops, something went wrong. Please try again later');
+REPLACE INTO cscart_language_values (lang_code, name, value) VALUES ('RU', 'pw_error_widget', 'Oops, something went wrong. Please try again later');
+
+REPLACE INTO cscart_language_values (lang_code, name, value) VALUES ('EN', 'pw_redirect', 'This page will redirect to checkout in 3 seconds');
+REPLACE INTO cscart_language_values (lang_code, name, value) VALUES ('ES', 'pw_redirect', 'This page will redirect to checkout in 3 seconds');
+REPLACE INTO cscart_language_values (lang_code, name, value) VALUES ('DE', 'pw_redirect', 'This page will redirect to checkout in 3 seconds');
+REPLACE INTO cscart_language_values (lang_code, name, value) VALUES ('FR', 'pw_redirect', 'This page will redirect to checkout in 3 seconds');
+REPLACE INTO cscart_language_values (lang_code, name, value) VALUES ('GR', 'pw_redirect', 'This page will redirect to checkout in 3 seconds');
+REPLACE INTO cscart_language_values (lang_code, name, value) VALUES ('IT', 'pw_redirect', 'This page will redirect to checkout in 3 seconds');
+REPLACE INTO cscart_language_values (lang_code, name, value) VALUES ('NL', 'pw_redirect', 'This page will redirect to checkout in 3 seconds');
+REPLACE INTO cscart_language_values (lang_code, name, value) VALUES ('RU', 'pw_redirect', 'This page will redirect to checkout in 3 seconds');

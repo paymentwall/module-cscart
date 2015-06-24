@@ -19,6 +19,63 @@ if ($mode == 'frame') {
     $view->assign('orderId', $_REQUEST['order_id']);
 }
 
+// Payment widget
+if ($mode == 'payment') {
+
+    $rid = $_REQUEST['order_id'];
+    $sid = $_SESSION['pw_order_id'];
+    $iframe = '';
+    $baseUrl = fn_url();
+    $matchOrder = ($rid == $sid);
+    $orderId = $sid;
+    $orderInfo = fn_get_order_info($orderId);
+
+    if ($matchOrder && $orderInfo) {
+
+        $coefficient = db_get_field("SELECT coefficient FROM ?:currencies WHERE currency_code = ?s", $orderInfo['secondary_currency']);
+        $realPrice = $orderInfo['total'] / $coefficient;
+        $paymentInfo = getPaymentConfigs($orderInfo['payment_id']);
+
+        // Prepare Widget Data
+        $uid = empty($orderInfo['user_id']) ? $orderInfo['ip_address'] : $orderInfo['user_id'];
+        $widgetCode = $paymentInfo['widget_type'];
+        $currencyCode = $orderInfo['secondary_currency'];
+        $testMode = $paymentInfo['test_mode'];
+
+        Paymentwall_Config::getInstance()->set(array(
+            'api_type' => Paymentwall_Config::API_GOODS,
+            'public_key' => $paymentInfo['key'],
+            'private_key' => $paymentInfo['secret']
+        ));
+
+        if (count($orderInfo['products']) > 0) {
+            $products[] = new Paymentwall_Product($orderId, $realPrice, $currencyCode, 'Order #' . $orderId);
+        }
+
+        $widget = new Paymentwall_Widget($uid, $widgetCode, $products, array(
+            'email' => $orderInfo['email'],
+            'payment_id' => $orderInfo['payment_id'],
+            'integration_module' => 'cs_cart',
+            'test_mode' => $testMode,
+            'ref' => rand(99, 999)
+        ));
+
+        // Generate Widget
+        $iframe = $widget->getHtmlCode(array(
+            'width' => '100%',
+            'height' => 400,
+            'frameborder' => 0
+        ));
+    }
+
+    fn_add_breadcrumb('Paymentwall Payment', '#', true);
+
+    Tygh::$app['view']->assign('matchOrder', $matchOrder);
+    Tygh::$app['view']->assign('orderId', $orderId);
+    Tygh::$app['view']->assign('baseUrl', $baseUrl);
+    Tygh::$app['view']->assign('iframe', $iframe);
+}
+
 if ($mode == 'pingback') {
 
     define('CREDIT_TYPE_CHARGEBACK', 2);
