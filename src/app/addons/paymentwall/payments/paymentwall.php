@@ -4,7 +4,6 @@ if (!defined('BOOTSTRAP')) {
     die('Access denied');
 }
 
-use Tygh\Http;
 use Tygh\Registry;
 
 require_once Registry::get('config.dir.lib') . DS . 'other' . DS . 'paymentwall-php' . DS . 'lib' . DS . 'paymentwall.php';
@@ -14,8 +13,6 @@ $realPrice = $order_info['total'] / $coefficient;
 
 $orderId = $order_info['order_id'];
 fn_change_order_status($orderId, 'O');
-
-$data = urlencode("order_id={$orderId}&payment_id={$order_info['payment_id']}");
 
 // Redirect to widget page
 $postUrl = fn_url('paymentwall.payment&order_id=' . $orderId);
