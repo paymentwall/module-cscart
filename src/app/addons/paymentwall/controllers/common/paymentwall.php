@@ -41,6 +41,7 @@ if ($mode == 'payment') {
         $widgetCode = $paymentInfo['widget_type'];
         $currencyCode = $orderInfo['secondary_currency'];
         $testMode = $paymentInfo['test_mode'];
+        $products = array();
 
         Paymentwall_Config::getInstance()->set(array(
             'api_type' => Paymentwall_Config::API_GOODS,
