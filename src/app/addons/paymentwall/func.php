@@ -100,7 +100,8 @@ function fn_paymentwall_updateOrderStatus($orderId, $status)
     db_query('UPDATE ?:orders SET ?u WHERE order_id = ?i', $data, $orderId);
 }
 
-function fn_paymentwall_getRealPrice($orderInfo){
+function fn_paymentwall_getRealPrice($orderInfo)
+{
     $coefficient = db_get_field(
         "SELECT coefficient FROM ?:currencies WHERE currency_code = ?s",
         $orderInfo['secondary_currency']
