@@ -21,19 +21,14 @@ function modeFrame()
 function modePayment()
 {
     $rid = $_REQUEST['order_id'];
-    $sid = $_SESSION['pw_order_id'];
+    $orderId = $_SESSION['pw_order_id'];
     $iframe = '';
-    $baseUrl = fn_url();
-    $matchOrder = ($rid == $sid);
-    $orderId = $sid;
+    $matchOrder = ($rid == $orderId);
     $orderInfo = fn_get_order_info($orderId);
 
     if ($matchOrder && $orderInfo) {
-        // Get Payment Info
-        $paymentInfo = fn_paymentwall_getPaymentConfigs($orderInfo['payment_id']);
-
         // Prepare Widget
-        $iframe = fn_paymentwall_generateWidget($orderInfo, $paymentInfo);
+        $iframe = fn_paymentwall_generateWidget($orderInfo, fn_paymentwall_getPaymentConfigs($orderInfo['payment_id']));
     }
 
     fn_add_breadcrumb('Paymentwall Payment', '#', true);
@@ -41,21 +36,16 @@ function modePayment()
     Tygh::$app['view']->assign('params', array(
         'matchOrder' => $matchOrder,
         'orderId' => $orderId,
-        'baseUrl' => $baseUrl,
+        'baseUrl' => fn_url(),
         'iframe' => $iframe
     ));
 }
 
 function modePingback()
 {
-    unset($_GET['dispatch']);
-
-    $orderId = isset($_GET['goodsid']) ? $_GET['goodsid'] : null;
-    $paymentId = isset($_GET['payment_id']) ? $_GET['payment_id'] : null;
-    $type = isset($_GET['type']) ? $_GET['type'] : null;
-
-    $configs = fn_paymentwall_getPaymentConfigs($paymentId);
-    $result = fn_paymentwall_handlePingback($configs, $orderId, $type);
+    $result = fn_paymentwall_handlePingback(
+        fn_paymentwall_getPaymentConfigs(isset($_GET['payment_id']) ? $_GET['payment_id'] : null)
+    );
 
     if ($result) die(PW_DEFAULT_PINGBACK_RESPONSE);
 
@@ -85,7 +75,7 @@ function handleDispatch($mode)
 function orderStatusProcessor($status)
 {
     switch ($status) {
-        case 'P':
+        case PW_ORDER_STATUS_PROCESSED:
             // Order Processed : Clear shopping cart
             fn_clear_cart($_SESSION['cart']);
             break;
