@@ -7,5 +7,6 @@ fn_register_hooks(
     'handlePingback',
     'updateOrderStatus',
     'getPaymentConfigs',
-    'generateWidget'
+    'generateWidget',
+    'getRealPrice'
 );

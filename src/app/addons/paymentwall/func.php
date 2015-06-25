@@ -29,8 +29,7 @@ function fn_paymentwall_generateWidget($orderInfo,$paymentInfo, $extraAttr = arr
 
     $uid = empty($orderInfo['user_id']) ? $orderInfo['ip_address'] : $orderInfo['user_id'];
     $products = array();
-    $coefficient = db_get_field("SELECT coefficient FROM ?:currencies WHERE currency_code = ?s", $orderInfo['secondary_currency']);
-    $realPrice = $orderInfo['total'] / $coefficient;
+    $realPrice = fn_paymentwall_getRealPrice($orderInfo);
 
     if (count($orderInfo['products']) > 0) {
         $products[] = new Paymentwall_Product($orderInfo['order_id'], $realPrice, $orderInfo['secondary_currency'], 'Order #' . $orderInfo['order_id']);
@@ -99,4 +98,12 @@ function fn_paymentwall_updateOrderStatus($orderId, $status)
         'status' => $status
     );
     db_query('UPDATE ?:orders SET ?u WHERE order_id = ?i', $data, $orderId);
+}
+
+function fn_paymentwall_getRealPrice($orderInfo){
+    $coefficient = db_get_field(
+        "SELECT coefficient FROM ?:currencies WHERE currency_code = ?s",
+        $orderInfo['secondary_currency']
+    );
+    return $orderInfo['total'] / $coefficient;
 }
