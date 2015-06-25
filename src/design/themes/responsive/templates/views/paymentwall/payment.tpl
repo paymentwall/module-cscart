@@ -1,10 +1,10 @@
 {assign var="checkout" value="checkout"}
-{if $matchOrder}
-    {$iframe nofilter}
+{if $params.matchOrder}
+    {$params.iframe nofilter}
     {script src="js/addons/paymentwall/func.js"}
     <script type="text/javascript">
         (function(){
-            paymentListener('{$orderId}', '{$baseUrl}');
+            paymentListener('{$params.orderId}', '{$params.baseUrl}');
         })()
     </script>
 {else}
