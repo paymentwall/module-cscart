@@ -64,7 +64,7 @@ function fn_paymentwall_handlePingback($configs, $orderId, $type)
 
     $pingback = new Paymentwall_Pingback($params, $_SERVER['REMOTE_ADDR']);
 
-    if ($pingback->validate(true)) {
+    if ($pingback->validate()) {
         if ($type == PW_CREDIT_TYPE_CHARGEBACK) {
             // Update order status: Canceled
             fn_paymentwall_updateOrderStatus($orderId, 'I');
