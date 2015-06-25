@@ -13,5 +13,3 @@ function paymentListener(orderId, baseUrl) {
         r.send(formData);
     }, 5000);
 }
-
-paymentListener(orderId, baseUrl);

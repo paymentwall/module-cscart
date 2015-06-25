@@ -3,8 +3,9 @@
     {$iframe nofilter}
     {script src="js/addons/paymentwall/func.js"}
     <script type="text/javascript">
-        var orderId = '{$orderId}';
-        var baseUrl = '{$baseUrl}';
+        (function(){
+            paymentListener('{$orderId}', '{$baseUrl}');
+        })()
     </script>
 {else}
     <div>
