@@ -8,5 +8,7 @@ fn_register_hooks(
     'updateOrderStatus',
     'getPaymentConfigs',
     'generateWidget',
-    'getRealPrice'
+    'getRealPrice',
+    'get_shipping_information',
+    'prepare_delivery_confirmation'
 );
