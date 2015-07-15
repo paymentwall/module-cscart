@@ -31,6 +31,8 @@ function modePayment()
         $iframe = fn_paymentwall_generateWidget($orderInfo, fn_paymentwall_getPaymentConfigs($orderInfo['payment_id']));
     }
 
+    // Clear Shopping Cart Session
+    fn_clear_cart($_SESSION['cart']);
     fn_add_breadcrumb('Paymentwall Payment', '#', true);
 
     Tygh::$app['view']->assign('params', array(

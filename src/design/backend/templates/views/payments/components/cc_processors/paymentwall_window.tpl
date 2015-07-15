@@ -20,4 +20,11 @@
         <option value="1" {if $processor_params.test_mode == "1"}selected="selected"{/if}>{__("Yes")}</option>
     </select>
 </div>
+<div class="form-field">
+    <label for="widget_type">{__("enable_delivery_confirmation")}:</label>
+    <select name="payment_data[processor_params][enable_delivery]" id="enable_delivery" class="input-text">
+        <option value="0" {if $processor_params.enable_delivery == "0"}selected="selected"{/if}>{__("No")}</option>
+        <option value="1" {if $processor_params.enable_delivery == "1"}selected="selected"{/if}>{__("Yes")}</option>
+    </select>
+</div>
 
