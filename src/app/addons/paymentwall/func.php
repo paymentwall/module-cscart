@@ -47,7 +47,7 @@ function fn_paymentwall_generateWidget($orderInfo, $paymentInfo, $extraAttr = ar
                 'integration_module' => 'cs_cart',
                 'test_mode' => $paymentInfo['test_mode']
             ),
-            fn_paymentwall_get_shipping_information($orderInfo)
+            fn_paymentwall_prepare_user_profile_data($orderInfo)
         ));
 
     // Generate Widget
@@ -81,12 +81,9 @@ function fn_paymentwall_handlePingback($configs)
                     $pingback->getParameter('ref'),
                     $paymentInfo['test_mode']
                 ));
-
-                if (isset($response['error'])) {
-                    var_dump($response['error'], $response['notices']);
-                }
+                
             }
-            
+
             // Update order status: Processed
             fn_paymentwall_updateOrderStatus($pingback->getProductId(), PW_ORDER_STATUS_PROCESSED);
 
@@ -126,46 +123,6 @@ function fn_paymentwall_getRealPrice($orderInfo)
 }
 
 /**
- * Prepare Shipping information
- * @param $orderInfo
- * @return array
- * @internal param $params
- */
-function fn_paymentwall_get_shipping_information($orderInfo)
-{
-    return array(
-        'customer' => array(
-            'email' => $orderInfo['email'],
-            'firstname' => $orderInfo['b_firstname'],
-            'lastname' => $orderInfo['b_lastname'],
-            'street1' => $orderInfo['b_address'],
-            'street2' => $orderInfo['b_address_2'],
-            'city' => $orderInfo['b_city'],
-            'state' => $orderInfo['b_state'],
-            'postcode' => $orderInfo['b_zipcode'],
-            'country' => $orderInfo['b_country'],
-            'phone' => $orderInfo['b_phone']
-        ),
-        'shipping_address' => array(
-            'firstname' => $orderInfo['s_firstname'],
-            'lastname' => $orderInfo['s_lastname'],
-            'company' => '', // null
-            'street1' => $orderInfo['s_address'],
-            'street2' => $orderInfo['s_address_2'],
-            'city' => $orderInfo['s_city'],
-            'state' => $orderInfo['s_state'],
-            'postcode' => $orderInfo['s_zipcode'],
-            'country' => $orderInfo['s_country'],
-            'phone' => $orderInfo['s_phone']
-        ),
-        'shipping_fee' => array(
-            'amount' => $orderInfo['shipping_cost'],
-            'currency' => $orderInfo['secondary_currency']
-        )
-    );
-}
-
-/**
  * @param $orderInfo
  * @param $ref
  * @param $isTest
@@ -193,5 +150,20 @@ function fn_paymentwall_prepare_delivery_confirmation($orderInfo, $ref, $isTest 
         'shipping_address[email]' => $orderInfo['email'],
         'shipping_address[firstname]' => $orderInfo['s_firstname'],
         'shipping_address[lastname]' => $orderInfo['s_lastname'],
+    );
+}
+
+function fn_paymentwall_prepare_user_profile_data($orderInfo)
+{
+    return array(
+        'customer[city]' => $orderInfo['b_city'],
+        'customer[state]' => $orderInfo['b_state'],
+        'customer[address]' => $orderInfo['b_address'],
+        'customer[country]' => $orderInfo['b_county'],
+        'customer[zip]' => $orderInfo['b_zipcode'],
+        'customer[username]' => $orderInfo['user_id'] ? $orderInfo['user_id'] : $orderInfo['ip_address'],
+        'customer[firstname]' => $orderInfo['b_firstname'],
+        'customer[lastname]' => $orderInfo['b_lastname'],
+        'email' => $orderInfo['email'],
     );
 }

@@ -1,5 +1,5 @@
 {assign var="checkout" value="checkout"}
-{if $params.matchOrder}
+{if $params.orderId}
     {$params.iframe nofilter}
     {script src="js/addons/paymentwall/func.js"}
     <script type="text/javascript">

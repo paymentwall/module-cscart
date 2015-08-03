@@ -20,23 +20,19 @@ function modeFrame()
 // Payment widget
 function modePayment()
 {
-    $rid = $_REQUEST['order_id'];
-    $orderId = $_SESSION['pw_order_id'];
+    $orderId = isset($_SESSION['pw_order_id']) && $_SESSION['pw_order_id'] ? $_SESSION['pw_order_id'] : false;
     $iframe = '';
-    $matchOrder = ($rid == $orderId);
-    $orderInfo = fn_get_order_info($orderId);
 
-    if ($matchOrder && $orderInfo) {
+    if ($orderId && $orderInfo = fn_get_order_info($orderId)) {
         // Prepare Widget
         $iframe = fn_paymentwall_generateWidget($orderInfo, fn_paymentwall_getPaymentConfigs($orderInfo['payment_id']));
     }
-
+    
     // Clear Shopping Cart Session
     fn_clear_cart($_SESSION['cart']);
     fn_add_breadcrumb('Paymentwall Payment', '#', true);
 
     Tygh::$app['view']->assign('params', array(
-        'matchOrder' => $matchOrder,
         'orderId' => $orderId,
         'baseUrl' => fn_url(),
         'iframe' => $iframe
@@ -79,7 +75,7 @@ function orderStatusProcessor($status)
     switch ($status) {
         case PW_ORDER_STATUS_PROCESSED:
             // Order Processed : Clear shopping cart
-            fn_clear_cart($_SESSION['cart']);
+            unset($_SESSION['pw_order_id']);
             break;
         default:
             break;
