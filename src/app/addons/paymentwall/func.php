@@ -78,7 +78,7 @@ function fn_paymentwall_handlePingback($configs)
                 $delivery = new Paymentwall_GenerericApiObject('delivery');
                 $response = $delivery->post(fn_paymentwall_prepare_delivery_confirmation(
                     $orderInfo,
-                    $pingback->getParameter('ref'),
+                    $pingback->getReferenceId(),
                     $paymentInfo['test_mode']
                 ));
                 
