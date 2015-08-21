@@ -1,6 +1,6 @@
 <?php
 
-if (!defined('AREA')) {
+if (!defined('BOOTSTRAP')) {
     die('Access denied');
 }
 
@@ -10,13 +10,13 @@ require_once Registry::get('config.dir.lib') . '/other/paymentwall-php/lib/payme
 
 function fn_paymentwall_uninstall_payment_processors()
 {
-    db_query("DELETE FROM ?:payment_descriptions WHERE payment_id IN (SELECT payment_id FROM ?:payments WHERE processor_id IN (SELECT processor_id FROM ?:payment_processors WHERE processor_script IN ('paymentwall.php')))");
-    db_query("DELETE FROM ?:payments WHERE processor_id IN (SELECT processor_id FROM ?:payment_processors WHERE processor_script IN ('paymentwall.php'))");
-    db_query("DELETE FROM ?:payment_processors WHERE processor_script IN ('paymentwall.php')");
+    db_query("DELETE FROM ?:payment_descriptions WHERE payment_id IN (SELECT payment_id FROM ?:payments WHERE processor_id IN (SELECT processor_id FROM ?:payment_processors WHERE processor_script IN ('paymentwall.php', 'brick.php')))");
+    db_query("DELETE FROM ?:payments WHERE processor_id IN (SELECT processor_id FROM ?:payment_processors WHERE processor_script IN ('paymentwall.php', 'brick.php'))");
+    db_query("DELETE FROM ?:payment_processors WHERE processor_script IN ('paymentwall.php', 'brick.php')");
 }
 
 
-function fn_paymentwall_initPaymentwallSdk($projectKey, $secretKey, $apiType = Paymentwall_Config::API_GOODS)
+function fn_paymentwall_init_configs($projectKey, $secretKey, $apiType = Paymentwall_Config::API_GOODS)
 {
     Paymentwall_Config::getInstance()->set(array(
         'api_type' => $apiType,
@@ -25,9 +25,9 @@ function fn_paymentwall_initPaymentwallSdk($projectKey, $secretKey, $apiType = P
     ));
 }
 
-function fn_paymentwall_generateWidget($orderInfo, $paymentInfo, $extraAttr = array())
+function fn_paymentwall_generate_widget($orderInfo, $paymentInfo, $extraAttr = array())
 {
-    fn_paymentwall_initPaymentwallSdk($paymentInfo['key'], $paymentInfo['secret']);
+    fn_paymentwall_init_configs($paymentInfo['key'], $paymentInfo['secret']);
 
     $widget = new Paymentwall_Widget(
         empty($orderInfo['user_id']) ? $orderInfo['ip_address'] : $orderInfo['user_id'],
@@ -35,7 +35,7 @@ function fn_paymentwall_generateWidget($orderInfo, $paymentInfo, $extraAttr = ar
         array(
             new Paymentwall_Product(
                 $orderInfo['order_id'],
-                fn_paymentwall_getRealPrice($orderInfo),
+                fn_paymentwall_get_real_price($orderInfo),
                 $orderInfo['secondary_currency'],
                 'Order #' . $orderInfo['order_id']
             )
@@ -58,62 +58,67 @@ function fn_paymentwall_generateWidget($orderInfo, $paymentInfo, $extraAttr = ar
     ), $extraAttr));
 }
 
-function fn_paymentwall_handlePingback($configs)
+function fn_paymentwall_handle_pingback()
 {
-    fn_paymentwall_initPaymentwallSdk($configs['key'], $configs['secret']);
+    if(isset($_GET['goodsid']) && $orderInfo = fn_get_order_info($_GET['goodsid'])){
 
-    unset($_GET['dispatch']);
-    $pingback = new Paymentwall_Pingback($_GET, $_SERVER['REMOTE_ADDR']);
+        $configs = $orderInfo['payment_method']['processor_params'];
 
-    if ($pingback->validate()) {
+        fn_paymentwall_init_configs($configs['key'], $configs['secret']);
+        unset($_GET['dispatch']);
 
-        $paymentInfo = fn_paymentwall_getPaymentConfigs($pingback->getParameter('payment_id'));
-        $orderInfo = fn_get_order_info($pingback->getProductId());
+        $pingback = new Paymentwall_Pingback($_GET, $_SERVER['REMOTE_ADDR']);
 
-        if ($pingback->isDeliverable()) {
+        if ($pingback->validate()) {
 
-            // Call Delivery Confirmation API
-            if ($paymentInfo['enable_delivery']) {
-                // Delivery Confirmation
-                $delivery = new Paymentwall_GenerericApiObject('delivery');
-                $response = $delivery->post(fn_paymentwall_prepare_delivery_confirmation(
-                    $orderInfo,
-                    $pingback->getReferenceId(),
-                    $paymentInfo['test_mode']
+            if ($pingback->isDeliverable()) {
+
+                // Call Delivery Confirmation API
+                if ($configs['enable_delivery']) {
+                    // Delivery Confirmation
+                    $delivery = new Paymentwall_GenerericApiObject('delivery');
+                    $response = $delivery->post(fn_paymentwall_prepare_delivery_confirmation(
+                        $orderInfo,
+                        $pingback->getReferenceId(),
+                        $configs['test_mode']
+                    ));
+
+                }
+
+                // Update order status: Processed
+                fn_finish_payment($pingback->getProductId(), array(
+                    'order_status' => PW_ORDER_STATUS_PROCESSED,
+                    'reason_text' => sprintf('Paymentwall payment approved (Order ID: #%s, Transaction ID: #%s)', $pingback->getProductId(), $pingback->getReferenceId())
                 ));
-                
+
+            } elseif ($pingback->isCancelable()) {
+                fn_finish_payment($pingback->getProductId(), array(
+                    'order_status' => PW_ORDER_STATUS_CANCELED,
+                    'reason_text' => 'Transaction was canceled'
+                ));
             }
 
-            // Update order status: Processed
-            fn_paymentwall_updateOrderStatus($pingback->getProductId(), PW_ORDER_STATUS_PROCESSED);
-
-        } elseif ($pingback->isCancelable()) {
-            fn_paymentwall_updateOrderStatus($pingback->getProductId(), PW_ORDER_STATUS_CANCELED);
+            return true;
+        } else {
+            echo $pingback->getErrorSummary();
+            return false;
         }
 
-        return true;
-    } else {
-        echo $pingback->getErrorSummary();
+    }else{
+        echo 'Order invalid!';
         return false;
     }
+
+
 }
 
-function fn_paymentwall_getPaymentConfigs($paymentId)
+function fn_paymentwall_get_configs($paymentId)
 {
     $processorParams = db_get_field("SELECT processor_params FROM ?:payments WHERE payment_id = ?s", $paymentId);
     return unserialize($processorParams);
 }
 
-function fn_paymentwall_updateOrderStatus($orderId, $status)
-{
-    db_query('UPDATE ?:orders SET ?u WHERE order_id = ?i', array(
-        'status' => $status
-    ),
-        $orderId
-    );
-}
-
-function fn_paymentwall_getRealPrice($orderInfo)
+function fn_paymentwall_get_real_price($orderInfo)
 {
     $coefficient = db_get_field(
         "SELECT coefficient FROM ?:currencies WHERE currency_code = ?s",

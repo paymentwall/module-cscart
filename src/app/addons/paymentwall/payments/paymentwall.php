@@ -1,8 +1,8 @@
 <?php
 
-if (!defined('AREA')) { die('Access denied'); }
+if (!defined('BOOTSTRAP')) { die('Access denied'); }
 
-fn_change_order_status($order_info['order_id'], 'O');
+fn_change_order_status($order_info['order_id'], PW_ORDER_STATUS_OPEN);
 
 // Redirect to widget page
 $postUrl = fn_url('paymentwall.payment');

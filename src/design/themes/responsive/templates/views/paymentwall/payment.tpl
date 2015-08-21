@@ -1,7 +1,9 @@
+{script src="js/addons/paymentwall/func.js"}
 {assign var="checkout" value="checkout"}
 {if $params.orderId}
+    <h1>Paymentwall</h1>
+    <p>{__("widget_notice")}</p>
     {$params.iframe nofilter}
-    {script src="js/addons/paymentwall/func.js"}
     <script type="text/javascript">
         (function(){
             paymentListener('{$params.orderId}', '{$params.baseUrl}');

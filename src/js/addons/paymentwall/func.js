@@ -1,10 +1,12 @@
+var pwInterval = false;
 function paymentListener(orderId, baseUrl) {
-    setInterval(function () {
+    pwInterval = setInterval(function () {
         var r = new XMLHttpRequest();
         r.open("POST", baseUrl + 'index.php?dispatch=paymentwall.ajax', true);
         r.onreadystatechange = function () {
             if (r.readyState != 4 || r.status != 200) return;
             if (r.responseText == 'P') {
+                clearInterval(pwInterval);
                 location.href = baseUrl + "index.php?dispatch=checkout.complete&order_id=" + orderId;
             }
         };
