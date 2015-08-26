@@ -1,6 +1,6 @@
 <?php
 
-if (!defined('AREA')) { die('Access denied'); }
+if (!defined('BOOTSTRAP')) { die('Access denied'); }
 
 // Process request mode
 handleDispatch($mode);
@@ -8,7 +8,6 @@ handleDispatch($mode);
 function modeAjax()
 {
     $status = db_get_field("SELECT status FROM ?:orders WHERE order_id = ?i", $_REQUEST['order_id']);
-    orderStatusProcessor($status);
     die($status);
 }
 
@@ -25,25 +24,26 @@ function modePayment()
 
     if ($orderId && $orderInfo = fn_get_order_info($orderId)) {
         // Prepare Widget
-        $iframe = fn_paymentwall_generateWidget($orderInfo, fn_paymentwall_getPaymentConfigs($orderInfo['payment_id']));
+        $iframe = fn_paymentwall_generate_widget($orderInfo, $orderInfo['payment_method']['processor_params']);
+    } else {
+
     }
-    
+
     // Clear Shopping Cart Session
     fn_clear_cart($_SESSION['cart']);
+    unset($_SESSION['pw_order_id']);
     fn_add_breadcrumb('Paymentwall Payment', '#', true);
 
     Tygh::$app['view']->assign('params', array(
         'orderId' => $orderId,
         'baseUrl' => fn_url(),
-        'iframe' => $iframe
+        'iframe' => $iframe,
     ));
 }
 
 function modePingback()
 {
-    $result = fn_paymentwall_handlePingback(
-        fn_paymentwall_getPaymentConfigs(isset($_GET['payment_id']) ? $_GET['payment_id'] : null)
-    );
+    $result = fn_paymentwall_handle_pingback();
 
     if ($result) die(PW_DEFAULT_PINGBACK_RESPONSE);
 
@@ -64,18 +64,6 @@ function handleDispatch($mode)
             break;
         case 'ajax':
             modeAjax();
-            break;
-        default:
-            break;
-    }
-}
-
-function orderStatusProcessor($status)
-{
-    switch ($status) {
-        case PW_ORDER_STATUS_PROCESSED:
-            // Order Processed : Clear shopping cart
-            unset($_SESSION['pw_order_id']);
             break;
         default:
             break;
