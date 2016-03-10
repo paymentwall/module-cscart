@@ -65,7 +65,6 @@ function fn_paymentwall_handle_pingback()
         $configs = $orderInfo['payment_method']['processor_params'];
 
         fn_paymentwall_init_configs($configs['key'], $configs['secret']);
-        unset($_GET['dispatch']);
 
         $pingback = new Paymentwall_Pingback($_GET, $_SERVER['REMOTE_ADDR']);
 
