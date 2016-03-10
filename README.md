@@ -3,7 +3,8 @@ Paymentwall module for Cs-Cart.
 
 
 ### Requirement
-* Cs-Cart v4.x
+* Compatible with Cs-Cart version 4.3.x
+* Tested on Cs-Cart 4.3.2, 4.3.6
 * PHP 5.3 or later
 
 #Installation
