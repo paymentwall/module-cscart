@@ -66,7 +66,7 @@ function fn_paymentwall_handle_pingback()
 
         fn_paymentwall_init_configs($configs['key'], $configs['secret']);
 
-        $pingback = new Paymentwall_Pingback($_GET, $_SERVER['REMOTE_ADDR']);
+        $pingback = new Paymentwall_Pingback($_GET, fn_get_client_ip_server());
 
         if ($pingback->validate()) {
 
@@ -170,4 +170,24 @@ function fn_paymentwall_prepare_user_profile_data($orderInfo)
         'customer[lastname]' => $orderInfo['b_lastname'],
         'email' => $orderInfo['email'],
     );
+}
+
+function fn_get_client_ip_server() {
+    $ipaddress = '';
+    if ($_SERVER['HTTP_CLIENT_IP'])
+        $ipaddress = $_SERVER['HTTP_CLIENT_IP'];
+    else if($_SERVER['HTTP_X_FORWARDED_FOR'])
+        $ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
+    else if($_SERVER['HTTP_X_FORWARDED'])
+        $ipaddress = $_SERVER['HTTP_X_FORWARDED'];
+    else if($_SERVER['HTTP_FORWARDED_FOR'])
+        $ipaddress = $_SERVER['HTTP_FORWARDED_FOR'];
+    else if($_SERVER['HTTP_FORWARDED'])
+        $ipaddress = $_SERVER['HTTP_FORWARDED'];
+    else if($_SERVER['REMOTE_ADDR'])
+        $ipaddress = $_SERVER['REMOTE_ADDR'];
+    else
+        $ipaddress = 'UNKNOWN';
+
+    return $ipaddress;
 }
