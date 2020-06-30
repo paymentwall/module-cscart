@@ -11,5 +11,6 @@ fn_register_hooks(
     'fn_paymentwall_get_configs',
     'fn_paymentwall_get_real_price',
     'fn_paymentwall_prepare_delivery_confirmation',
-    'fn_paymentwall_prepare_user_profile_data'
+    'fn_paymentwall_prepare_user_profile_data',
+    'create_shipment_post'
 );
